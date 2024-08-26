@@ -1,5 +1,6 @@
 Simple pipeline to convert pihole logs to CIM-compliants fields for the Network_Resolution datamodel in Splunk.
 As mentioned on:
+https://medium.com/@datoui/collecting-pi-hole-logs-and-parsing-them-with-cribl-stream-046bcf612188
 
 
 
