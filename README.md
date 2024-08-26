@@ -1,8 +1,12 @@
-Simple pipeline to convert pihole logs to CIM-compliants fields for the Network_Resolution datamodel in splunk.
+Simple pipeline to convert pihole logs to CIM-compliants fields for the Network_Resolution datamodel in Splunk.
 
 Turn this:
 /var/log/pihole/pihole.log
 
-https://cdn-images-1.medium.com/max/800/1*8ZHZtRBKFzJWrCyOlTPLcQ.png![image](https://github.com/user-attachments/assets/a62f1783-ff9f-4a3a-b254-05c3628def42)
+![image](https://github.com/user-attachments/assets/89c502b7-cc6e-4d3d-b741-e6ba196669ef)
+
 
 Into: 
+
+![image](https://github.com/user-attachments/assets/d7da053c-2346-47e2-bffe-ece417902ac5)
+
