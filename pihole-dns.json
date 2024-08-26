@@ -7,8 +7,8 @@
     "asyncFuncTimeout": 1000,
     "functions": [
       {
-        "filter": "!_raw.includes(' query') && !_raw.includes(' reply ') && !_raw.includes('gravity blocked')",
         "conf": {},
+        "filter": "!_raw.includes(' query') && !_raw.includes(' reply ') && !_raw.includes('gravity blocked')",
         "id": "drop",
         "description": "ONLY querys and replies"
       },
@@ -62,7 +62,7 @@
             },
             {
               "disabled": false,
-              "name": "direction",
+              "name": "dest_zone",
               "value": "C.Net.isPrivate(dest)  ? 'internal' : 'external'"
             },
             {
