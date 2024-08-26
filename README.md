@@ -1,4 +1,4 @@
-Simple pipeline to convert pihole logs to CIM-compliants fields for the Network_Resolution datamodel in Splunk.
+Simple Cribl pipeline to convert pihole logs to CIM-compliants fields with Cribl Stream for the Network_Resolution datamodel in Splunk.
 
 Turn this:
 /var/log/pihole/pihole.log
