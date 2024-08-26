@@ -1,0 +1,162 @@
+{
+  "id": "pihole-dns",
+  "conf": {
+    "output": "default",
+    "streamtags": [],
+    "groups": {},
+    "asyncFuncTimeout": 1000,
+    "functions": [
+      {
+        "filter": "!_raw.includes(' query') && !_raw.includes(' reply ') && !_raw.includes('gravity blocked')",
+        "conf": {},
+        "id": "drop",
+        "description": "ONLY querys and replies"
+      },
+      {
+        "filter": "true",
+        "conf": {
+          "source": "_raw",
+          "iterations": 100,
+          "overwrite": false,
+          "regex": "/dnsmasq\\[\\d+\\]\\:\\s(?<transaction_id>\\d+)\\s(?<src>[^\\/]+)\\/(?<src_port>\\d+)\\s(?<name>\\w+)(\\[(?<query_type>\\w+)\\])?\\s(?<query>([^\\s+]+\\.)?(?<domain>[^\\.|\\s]+\\.(?<tld>\\w+)))\\s\\w{2}\\s(?<answer>\\S+)$/gmi",
+          "regexList": [
+            {
+              "regex": "/dnsmasq\\[\\d+\\]\\:\\s(?<transaction_id>\\d+)\\s(?<src>[^\\/]+)\\/(?<src_port>\\d+)\\s(?<name>\\w+)(\\[(?<query_type>\\w+)\\])?\\s(?<query>(\\S+\\.)?(?<domain>.+\\.(?<tld>\\w+)))\\sfrom\\s\\S+$/"
+            },
+            {
+              "regex": "/dnsmasq\\[\\d+\\]\\:\\s(?<transaction_id>\\d+)\\s(?<src>[^\\/]+)\\/(?<src_port>\\d+)\\s(?<name>\\w+)\\sblocked\\s(?<query>(\\S+\\.)?(?<domain>.+?\\.(?<tld>\\w+)))\\s\\w+\\s(?<answer>\\S+)$/"
+            }
+          ]
+        },
+        "id": "regex_extract",
+        "disabled": false
+      },
+      {
+        "filter": "true",
+        "conf": {
+          "add": [
+            {
+              "disabled": false,
+              "name": "domain",
+              "value": "domain.match(/\\d\\.\\d+$/) || domain.endsWith('.arpa') ?  \"0.0.0.0\" : domain"
+            },
+            {
+              "disabled": false,
+              "name": "tld",
+              "value": "tld.match(/\\d/) ?  \"0.0.0.0\" : tld.toLowerCase()"
+            },
+            {
+              "disabled": false,
+              "name": "action",
+              "value": "_raw.includes('gravity blocked') ? 'blocked' : 'allowed'"
+            },
+            {
+              "disabled": false,
+              "name": "action",
+              "value": "name==\"query\" ?  \"0.0.0.0\"  : action"
+            },
+            {
+              "disabled": false,
+              "name": "dest",
+              "value": "query.endsWith('arpa') ?  query.replace('.in-addr.arpa','').split('.').reverse().join('.') : answer"
+            },
+            {
+              "disabled": false,
+              "name": "direction",
+              "value": "C.Net.isPrivate(dest)  ? 'internal' : 'external'"
+            },
+            {
+              "disabled": false,
+              "name": "dest",
+              "value": "answer == dest || dest.endsWith('_dns')   ? \"0.0.0.0\" : dest"
+            }
+          ],
+          "remove": [
+            "_raw"
+          ]
+        },
+        "id": "eval",
+        "disabled": false
+      },
+      {
+        "filter": "true",
+        "conf": {
+          "type": "json",
+          "dstField": "_raw",
+          "fields": [
+            "!__*",
+            "!source",
+            "!sourcetype",
+            "!index",
+            "!_time",
+            "!host",
+            "!cribl_*",
+            "*"
+          ],
+          "cleanFields": false
+        },
+        "id": "serialize",
+        "disabled": false
+      },
+      {
+        "filter": "true",
+        "conf": {
+          "keep": [
+            "_time",
+            "host",
+            "index",
+            "sourcetype",
+            "_raw",
+            "source"
+          ],
+          "remove": [
+            "cribl_*",
+            "*",
+            "_*",
+            "__*"
+          ],
+          "add": [
+            {
+              "disabled": false,
+              "name": "index",
+              "value": "'dns'"
+            },
+            {
+              "disabled": false,
+              "name": "sourcetype",
+              "value": "'pihole'"
+            },
+            {
+              "disabled": false,
+              "name": "host",
+              "value": "'pihole'"
+            },
+            {
+              "disabled": false,
+              "name": "source",
+              "value": "'cribl'"
+            },
+            {
+              "disabled": false,
+              "name": "cribl",
+              "value": "'true'"
+            }
+          ]
+        },
+        "id": "eval",
+        "disabled": false
+      },
+      {
+        "filter": "true",
+        "conf": {
+          "mode": "reserialize",
+          "type": "json",
+          "srcField": "_raw",
+          "fieldFilterExpr": "value != null && value != \"0.0.0.0\" && value!=\"::\""
+        },
+        "id": "serde",
+        "disabled": false
+      }
+    ]
+  }
+}
